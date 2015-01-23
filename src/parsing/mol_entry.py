@@ -15,7 +15,7 @@ def make_request():
     """Function to build a request object-for testing"""
     print "Making request"
     my_req = Request()
-    my_req.in_stream = "/jython_test/src/test_data/test.smi"
+    my_req.in_stream = "/jython_test/src/test_data/test.inchi"
     return my_req
 
 
@@ -55,16 +55,19 @@ def check_stream_type(in_stream):
     elif len(header.split(" ")) > 1:
         delim = " "
     else:
-        print "UNKNOWN DELIMTER"
-        return
+        print "Assuming only one column"
+        delim = " "
     # Check for whitespace delimerter
-    rdmol = RWMol.MolFromSmiles(test_line.split(delim)[0])
+#    rdmol = RWMol.MolFromSmiles(test_line.split(delim)[0])
+    rdmol = None
     if rdmol:
         file_flag = "smiles"
         return file_flag, delim
     elif rdmol is None:
         pass
-    rdmol = RWMol.MolFromInchi(test_line.split(delim)[0])
+    # Needed to get the InChI reading correctly
+    my_vals = ExtraInchiReturnValues()
+    rdmol = RDKFuncs.InchiToMol(test_line.split(delim)[0], my_vals)
     if rdmol:
         file_flag = "inchi"
         return file_flag, delim
@@ -79,3 +82,6 @@ request = make_request()
 file_flag, delim = check_stream_type(request.in_stream)
 print "FILE TYPE: ",file_flag
 print "DELIMITER: ",delim
+# Now read the files and pass out as a stream of molecule
+
+
