@@ -15,7 +15,7 @@ def make_request():
     """Function to build a request object-for testing"""
     print "Making request"
     my_req = Request()
-    my_req.in_stream = "/jython_test/src/test_data/test.inchi"
+    my_req.in_stream = "/jython_test/src/test_data/test.smi"
     return my_req
 
 
@@ -42,10 +42,13 @@ def check_stream_type(in_stream):
         else:
             file_flag = "sdf"
             delim = "$$$$"
-            return file_flag, delim
+            return file_flag, delim, None
 
     my_mols = in_stream.split("\n")
-    test_line = my_mols[1]
+    if len(my_mols) == 1:
+        test_line = my_mols[0]
+    else:
+        test_line = my_mols[1]
     header = my_mols[0]
     # Check for a comma seperatin
     if len(header.split("\t")) > 1:
@@ -58,30 +61,59 @@ def check_stream_type(in_stream):
         print "Assuming only one column"
         delim = " "
     # Check for whitespace delimerter
-#    rdmol = RWMol.MolFromSmiles(test_line.split(delim)[0])
     rdmol = None
+    rdmol = [i for i in range(len(test_line.split(delim))) if None != RWMol.MolFromSmiles(test_line.split(delim)[i])]
     if rdmol:
-        file_flag = "smiles"
-        return file_flag, delim
+         file_flag = "smiles"
+         if RWMol.MolFromSmiles(header.split(delim)[rdmol[0]]):
+             return file_flag, delim, rdmol[0], True
+         else:
+             return file_flag, delim, rdmol[0], False
     elif rdmol is None:
         pass
     # Needed to get the InChI reading correctly
     my_vals = ExtraInchiReturnValues()
-    rdmol = RDKFuncs.InchiToMol(test_line.split(delim)[0], my_vals)
+    rdmol = [i for i in range(len(test_line.split(delim))) if RDKFuncs.InchiToMol(test_line.split(delim)[i], my_vals) != None ]
     if rdmol:
         file_flag = "inchi"
-        return file_flag, delim
+        if RDKFuncs.InchiToMol(header.split(delim)[rdmol[0]], my_vals):
+            return file_flag, delim, rdmol[0], True
+        else:
+            return file_flag, delim, rdmol[0], False
     elif rdmol is None:
         pass
     print "UNKNOWN FILE TYPE"
-    return None, None
+    return None, None, None, None
+
+
+def read_mols(file_flag, delim, col_ind, header, in_stream):
+    """Function to actually read the mols"""
+    if file_flag == "sdf":
+        return SDMolSupplier(in_stream)
+    elif file_flag == "smiles":
+        me=  """Need to add header identifier etc"""
+        return SmilesMolSupplier(in_stream)
+    elif file_flag == "inchi":
+        my_vals = ExtraInchiReturnValues()
+        out_mols = []
+        in_mols = open(in_stream).read().split("\n")
+        if header:
+            out_vals = [x for x in in_mols[0].split(delim)]
+            for mol in in_mols:
+                out_mols.append(RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals))
+            return out_mols
+        else:
+            return [RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals) for mol in in_mols]        
+
 
 # Make the request
 request = make_request()
 # Check the type
-file_flag, delim = check_stream_type(request.in_stream)
+file_flag, delim, col_ind, header = check_stream_type(request.in_stream)
 print "FILE TYPE: ",file_flag
 print "DELIMITER: ",delim
+print "COLUMN IND: ",col_ind
+print "COLUMN HEADER: ",header
 # Now read the files and pass out as a stream of molecule
-
+request.out_ans = read_mols(file_flag, delim, col_ind, header, request.in_stream)
 
