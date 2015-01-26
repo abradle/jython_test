@@ -2,7 +2,7 @@ from java import lang
 lang.System.loadLibrary('GraphMolWrap')
 from org.RDKit import *
 from threading import Thread
-import os
+import os, pickle
 
 
 class Request():
@@ -11,11 +11,14 @@ class Request():
        print "Initialsing request"
 
 
-def make_request():
+def make_request(n_stream=None):
     """Function to build a request object-for testing"""
     print "Making request"
     my_req = Request()
-    my_req.in_stream = "/jython_test/src/test_data/test.smi"
+    if n_stream:
+        my_req.in_stream = n_stream
+    else:
+        my_req.in_stream = "/jython_test/src/test_data/test.smi"
     return my_req
 
 
@@ -42,7 +45,7 @@ def check_stream_type(in_stream):
         else:
             file_flag = "sdf"
             delim = "$$$$"
-            return file_flag, delim, None
+            return file_flag, delim, 0, None
 
     my_mols = in_stream.split("\n")
     if len(my_mols) == 1:
@@ -89,10 +92,20 @@ def check_stream_type(in_stream):
 def read_mols(file_flag, delim, col_ind, header, in_stream):
     """Function to actually read the mols"""
     if file_flag == "sdf":
-        return SDMolSupplier(in_stream)
+        suppl = SDMolSupplier(in_stream)
+        out_l = []
+        while not suppl.atEnd():
+            out_l.append(suppl.next())
+        return out_l
     elif file_flag == "smiles":
         me=  """Need to add header identifier etc"""
-        return SmilesMolSupplier(in_stream)
+        suppl = SmilesMolSupplier(in_stream)
+        out_l = []
+        while not suppl.atEnd():
+            out_l.append(suppl.next())
+        return out_l
+
+
     elif file_flag == "inchi":
         my_vals = ExtraInchiReturnValues()
         out_mols = []
@@ -106,14 +119,23 @@ def read_mols(file_flag, delim, col_ind, header, in_stream):
             return [RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals) for mol in in_mols]        
 
 
-# Make the request
-request = make_request()
-# Check the type
-file_flag, delim, col_ind, header = check_stream_type(request.in_stream)
-print "FILE TYPE: ",file_flag
-print "DELIMITER: ",delim
-print "COLUMN IND: ",col_ind
-print "COLUMN HEADER: ",header
-# Now read the files and pass out as a stream of molecule
-request.out_ans = read_mols(file_flag, delim, col_ind, header, request.in_stream)
+def do_test():
+    for item in ["/jython_test/src/test_data/test.smi","/jython_test/src/test_data/test.inchi","/jython_test/src/test_data/test.sdf"]:
+        parse_mols(item)
+    
 
+def parse_mols(item):# Make the request
+    request = make_request(item)
+    # Check the type
+    file_flag, delim, col_ind, header = check_stream_type(request.in_stream)
+    print "FILE TYPE: ",file_flag
+    print "DELIMITER: ",delim
+    print "COLUMN IND: ",col_ind
+    print "COLUMN HEADER: ",header
+    # Now read the files and pass out as a stream of molecule
+    request.out_ans = read_mols(file_flag, delim, col_ind, header, request.in_stream)
+    return request.out_ans
+
+if __name__ == "__main__":
+# Just replace this with parse_mols and pss in the request and we've got it
+    do_test()
