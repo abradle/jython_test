@@ -95,17 +95,21 @@ def read_mols(file_flag, delim, col_ind, header, in_stream):
         suppl = SDMolSupplier(in_stream)
         out_l = []
         while not suppl.atEnd():
-            out_l.append(suppl.next())
+            mol = suppl.next()
+            if mol is None:
+                continue
+            out_l.append(mol)
         return out_l
     elif file_flag == "smiles":
         me=  """Need to add header identifier etc"""
         suppl = SmilesMolSupplier(in_stream)
         out_l = []
         while not suppl.atEnd():
-            out_l.append(suppl.next())
+            mol = suppl.next()
+            if mol is None:
+                continue
+            out_l.append(mol)
         return out_l
-
-
     elif file_flag == "inchi":
         my_vals = ExtraInchiReturnValues()
         out_mols = []
@@ -113,10 +117,12 @@ def read_mols(file_flag, delim, col_ind, header, in_stream):
         if header:
             out_vals = [x for x in in_mols[0].split(delim)]
             for mol in in_mols:
-                out_mols.append(RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals))
+                o_mol = RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals)
+                if o_mol:
+                    out_mols.append(RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals))
             return out_mols
         else:
-            return [RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals) for mol in in_mols]        
+            return [RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals) for mol in in_mols if RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals)]        
 
 
 def do_test():

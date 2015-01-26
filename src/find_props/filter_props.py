@@ -3,22 +3,20 @@ lang.System.loadLibrary('GraphMolWrap')
 from org.RDKit import *
 from threading import Thread
 import os
+from find_props import funct_dict
 
+def filter_prop(request):
+    request.out_stream = []
+    for mol in request.in_stream:
+        my_val = funct_dict[request.header](ret_val=True)
+# Now di tge checjs
+        if request.max_ans:
+            if my_val > request.max_ans:
+                continue
+        if request.min_ans:
+            if my_val < request.min_ans:
+                continue
+        request.out_stream.append(mol)
 
-class Request():
-   """Class to hold requests to dummy the input behaviour"""
-   def __init__(self):
-       print "Initialsing request"
-
-
-def make_request(n_stream=None, header="num_hba"):
-    """Function to build a request object-for testing"""
-    print "Making request"
-    my_req = Request()
-    my_req.in_stream = n_stream
-    my_req.header = header
-    return my_req
-
-
-#### All functions in this class take two args - less than and more than
-
+if __name__ is "__main__":
+    filter_prop(request)

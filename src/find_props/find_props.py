@@ -21,20 +21,37 @@ def make_request(n_stream=None, header="num_hba"):
     my_req.header = header
     return my_req
 
-def num_hba(mol):
-     print "Calculating number of H-bond acceptors"
+def num_hba(mol, ret_val=False):
+#     print "Calculating number of H-bond acceptors"
+     val = RDKFuncs.calcNumHBA(mol)
+     if ret_val:
+         return val
+     return mol
+
+def num_hbd(mol, ret_val=False):
+#     print "Calculating number of H-bond donors"
+     val = RDKFuncs.calcNumHBD(mol)
+     if ret_val:
+         return val
+     return mol
 
 
-def num_hbd(mol):
-     print "Calculating number of H-bond donors"
+
+def num_rings(mol, ret_val=False):
+ #    print "Calculating number of rings"
+     val = RDKFuncs.calcNumRings(mol)
+     if ret_val:
+         return val
+     return mol
 
 
-def num_rings(mol):
-     print "Calculating number of rings"
+def mol_logp(mol, ret_val=False):
+ #    print "Calculating mol log p"
+     val = RDKFuncs.calcMolLogP(mol)
+     if ret_val:
+         return val
+     return mol
 
-
-def mol_logp(mol):
-     print "Calculating mol log p"
 
 # A dictionary to relate functioons t ostrings
 funct_dict = {"num_hba": num_hba,
