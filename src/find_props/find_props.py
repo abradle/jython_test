@@ -46,8 +46,8 @@ funct_dict = {"num_hba": num_hba,
 
 
 def calc_props(request):
-    for mol in request.out_ans:
-        funct_dict[request.headers](mol)
+    for mol in request.body:
+        funct_dict[request.function](mol)
 
 # Request will comprise two parts
 ## 1) Stream of molecuels

@@ -107,22 +107,16 @@ def read_mols(file_flag, delim, col_ind, header, in_stream):
         else:
             return [RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals) for mol in in_mols if RDKFuncs.InchiToMol(mol.split(delim)[col_ind], my_vals)]        
 
-
-def do_test():
-    for item in ["/jython_test/src/test_data/test.smi","/jython_test/src/test_data/test.inchi","/jython_test/src/test_data/test.sdf"]:
-        request = make_request(n_stream=item)
-        parse_mols(request)
-    
-
 def parse_mols(request):# Make the request
     # Check the type
-    file_flag, delim, col_ind, header = check_stream_type(request.in_stream)
+    print request
+    file_flag, delim, col_ind, header = check_stream_type(request.body)
     print "FILE TYPE: ",file_flag
     print "DELIMITER: ",delim
     print "COLUMN IND: ",col_ind
     print "COLUMN HEADER: ",header
     # Now read the files and pass out as a stream of molecule
-    request.out_ans = read_mols(file_flag, delim, col_ind, header, request.in_stream)
+    request.body = read_mols(file_flag, delim, col_ind, header, request.body)
     return request
 
 if __name__ == "__main__":

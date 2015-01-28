@@ -1,0 +1,31 @@
+// /////// First route to parse mols
+// mycode to parse a
+from("direct:python")
+	.to("language:python:file:/jython_test/src/parsing/mol_entry.py?transform=false") 
+// request.body is a) a file path b) to be added a text stream
+// returned request.body is the list of RDKit molecule objects
+
+
+// ////////// Second route to add  properties to molecules
+// Get the mols
+
+from("direct:python")
+	.to("language:python:file:/jython_test/src/parsing/mol_entry.py?transform=false") 
+// request.body is a) a file path b) to be added a text stream
+// returned request.body is the list of RDKit molecule objects
+from("direct:python")
+	.to("language:python:file:/jython_test/src/find_props/find_props.py?transform=false") 
+// Request.body is the molcules produced above and request.headers need to be set with  a string value denoting the function -> e.g. "num_hba" for number of H-bond acceptors
+// Returns the molecules objects with the updated properties 
+
+// //////// Third route to filter molecule properties
+// Get the moles
+from("direct:python")
+	.to("language:python:file:/jython_test/src/parsing/mol_entry.py?transform=false") 
+// request.body is a) a file path b) to be added a text stream
+// returned request.body is the list of RDKit molecule objects
+from("direct:python")
+	.to("language:python:file:/jython_test/src/find_props/filter_props.py?transform=false")
+// Request.body is the molecules produced above and request.headers needs to be set with a string value denoting the property and the min / max values. e.g. "0<num_hba<4". This notation can then be parsed
+// Returns the filtered mols as body
+

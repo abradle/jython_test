@@ -7,8 +7,8 @@ from find_props import funct_dict
 
 def filter_prop(request):
     new_ans = []
-    for mol in request.out_ans:
-        my_val = funct_dict[request.headers](mol, ret_val=True)
+    for mol in request.body:
+        my_val = funct_dict[request.function](mol, ret_val=True)
 # Now di tge checjs
         if request.max_ans:
             if my_val > request.max_ans:
@@ -17,7 +17,7 @@ def filter_prop(request):
             if my_val < request.min_ans:
                 continue
         new_ans.append(mol)
-    request.out_ans = new_ans
+    request.body = new_ans
     return request
 
 if __name__ == "__main__":
