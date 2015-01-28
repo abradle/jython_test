@@ -6,21 +6,6 @@ from org.RDKit import *
 from threading import Thread
 import os
 
-
-class Request():
-   """Class to hold requests to dummy the input behaviour"""
-   def __init__(self):
-       print "Initialsing request"
-
-
-def make_request(n_stream=None, header="num_hba"):
-    """Function to build a request object-for testing"""
-    print "Making request"
-    my_req = Request()
-    my_req.in_stream = n_stream
-    my_req.header = header
-    return my_req
-
 def num_hba(mol, ret_val=False):
 #     print "Calculating number of H-bond acceptors"
      val = RDKFuncs.calcNumHBA(mol)
@@ -60,25 +45,14 @@ funct_dict = {"num_hba": num_hba,
 "mol_logp": mol_logp}
 
 
-def make_props_from_list(in_stream, header):
-    request = make_request(in_stream, header)
-    calc_props(request)
-
 def calc_props(request):
-    for mol in request.in_stream:
-        funct_dict[request.header](mol)
+    for mol in request.out_ans:
+        funct_dict[request.headers](mol)
 
 # Request will comprise two parts
 ## 1) Stream of molecuels
 ## 2) String relating to property
 
-
-if __name__ is "__main__":
+if __name__ == "__main__":
+    print "calculating properties"
     calc_props(request)
-#    request = make_request(item, "num_hba")
-    # Check the type
-#    calc_props(request)
-
-
-
-

@@ -1,6 +1,13 @@
 from parsing.mol_entry import parse_mols
-from find_props.find_props import make_props_from_list
+from find_props.find_props import calc_props
+from camel_objs.models import make_request
+from find_props.filter_props import filter_prop
+
 for item in ["/jython_test/src/test_data/test.smi","/jython_test/src/test_data/test.inchi","/jython_test/src/test_data/test.sdf"]:
-    out_ans = parse_mols(item)
+    request = make_request(n_stream=item)
+    request = parse_mols(request)
     for prop in ["num_hba", "num_hbd", "mol_logp"]:
-        make_props_from_list(out_ans, prop)
+        request = make_request(request=request, headers=prop)
+        calc_props(request)
+    request = make_request(request=request, headers="num_hba", max_ans=7,min_ans=2)
+    request = filter_prop(request)

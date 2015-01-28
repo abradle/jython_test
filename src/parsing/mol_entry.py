@@ -5,23 +5,6 @@ from threading import Thread
 import os, pickle
 
 
-class Request():
-   """Class to hold requests to dummy the input behaviour"""
-   def __init__(self):
-       print "Initialsing request"
-
-
-def make_request(n_stream=None):
-    """Function to build a request object-for testing"""
-    print "Making request"
-    my_req = Request()
-    if n_stream:
-        my_req.in_stream = n_stream
-    else:
-        my_req.in_stream = "/jython_test/src/test_data/test.smi"
-    return my_req
-
-
 def check_stream_type(in_stream):
     """Function to check what the input is"""
     # File types, SMILES, SD, MOL, INCHI
@@ -127,11 +110,11 @@ def read_mols(file_flag, delim, col_ind, header, in_stream):
 
 def do_test():
     for item in ["/jython_test/src/test_data/test.smi","/jython_test/src/test_data/test.inchi","/jython_test/src/test_data/test.sdf"]:
-        parse_mols(item)
+        request = make_request(n_stream=item)
+        parse_mols(request)
     
 
-def parse_mols(item):# Make the request
-    request = make_request(item)
+def parse_mols(request):# Make the request
     # Check the type
     file_flag, delim, col_ind, header = check_stream_type(request.in_stream)
     print "FILE TYPE: ",file_flag
@@ -140,8 +123,8 @@ def parse_mols(item):# Make the request
     print "COLUMN HEADER: ",header
     # Now read the files and pass out as a stream of molecule
     request.out_ans = read_mols(file_flag, delim, col_ind, header, request.in_stream)
-    return request.out_ans
+    return request
 
 if __name__ == "__main__":
 # Just replace this with parse_mols and pss in the request and we've got it
-    do_test()
+   parse_mols(request)
