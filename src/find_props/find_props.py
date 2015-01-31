@@ -7,20 +7,28 @@ from threading import Thread
 import os
 
 def num_hba(mol):
-#     print "Calculating number of H-bond acceptors"
-     return RDKFuncs.calcNumHBA(mol)
+    """Function for calculating number of H-bond acceptors
+    Takes an RDKit molecule
+    Returns an int"""
+    return RDKFuncs.calcNumHBA(mol)
 
 def num_hbd(mol):
-#     print "Calculating number of H-bond donors"
-     return RDKFuncs.calcNumHBD(mol)
+    """Function for calculating number of H-bond donors
+    Takes an RDKit molecule
+    Returns an int"""
+    return RDKFuncs.calcNumHBD(mol)
 
 def num_rings(mol):
- #    print "Calculating number of rings"
-     return RDKFuncs.calcNumRings(mol)
+    """Function for calculating number of rings
+    Takes an RDKit molecule
+    Returns an int"""
+    return RDKFuncs.calcNumRings(mol)
 
 def mol_logp(mol, ret_val=False):
- #    print "Calculating mol log p"
-     return RDKFuncs.calcMolLogP(mol)
+     """Function for calculating mol log p
+    Takes an RDKit molecule
+    Returns a int"""
+    return RDKFuncs.calcMolLogP(mol)
 
 # A dictionary to relate functioons t ostrings
 funct_dict = {"num_hba": num_hba,
