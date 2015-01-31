@@ -21,22 +21,33 @@ def check_stream_type(in_stream):
     # Now check what file format we havea
     my_mols = in_stream.split("$$$$")
     if len(my_mols) > 1:
+        # Read the first mol
         rdmol = RWMol.MolFromMolBlock(my_mols[0])
         # If this is none - this may not be a MOL file so we need to test the others
         if rdmol is None:
-            print "MAY NOT BE SDF FILE"
+            # Check if it can read any of the others
+            if len([x for x in in my_mols if RWMol.MolFromMolBlock(x)]) == 0:
+                return None, None, None, None
+            else:
+                # IF it reads as an - set the flags accordingly
+                file_flag = "sdf"
+                delim = "$$$$"
+                return file_flag, delim, 0, None
         else:
+            # IF it reads as an - set the flags accordingly
             file_flag = "sdf"
             delim = "$$$$"
             return file_flag, delim, 0, None
-
+    # Now split the file on lines
     my_mols = in_stream.split("\n")
+    # IF there's only one line assume there isn't a header
     if len(my_mols) == 1:
         test_line = my_mols[0]
+    # Otherwise assume the first line MIGHT be a header
     else:
         test_line = my_mols[1]
     header = my_mols[0]
-    # Check for a comma seperatin
+    # Check for tab,  comma and space seperatin
     if len(header.split("\t")) > 1:
         delim = "\t"
     elif len(header.split(",")) > 1:
@@ -46,9 +57,10 @@ def check_stream_type(in_stream):
     else:
         print "Assuming only one column"
         delim = " "
-    # Check for whitespace delimerter
+    # Check for whitespace delimeter
     rdmol = None
     rdmol = [i for i in range(len(test_line.split(delim))) if None != RWMol.MolFromSmiles(test_line.split(delim)[i])]
+    # If we get any ols - this is a smiles file
     if rdmol:
          file_flag = "smiles"
          if RWMol.MolFromSmiles(header.split(delim)[rdmol[0]]):
@@ -59,7 +71,9 @@ def check_stream_type(in_stream):
         pass
     # Needed to get the InChI reading correctly
     my_vals = ExtraInchiReturnValues()
+    # Check if there are Inchis
     rdmol = [i for i in range(len(test_line.split(delim))) if RDKFuncs.InchiToMol(test_line.split(delim)[i], my_vals) != None ]
+    # If there are Inchis - assign that as the flag
     if rdmol:
         file_flag = "inchi"
         if RDKFuncs.InchiToMol(header.split(delim)[rdmol[0]], my_vals):
@@ -73,15 +87,25 @@ def check_stream_type(in_stream):
 
 
 def read_mols(file_flag, delim, col_ind, header, in_stream):
-    """Function to actually read the mols"""
+    """Function to actually read the mols
+    Takes in a file_flag - indicating the type of file
+    delim - string indicating what the delimiter is
+    col_ind - an int indicating the column
+    header - a bool indicating if there is a header
+    in_stream - the file path to read
+    Returns - a Pythonlist of RDKit molecules"""
     if file_flag == "sdf":
+        # Read the SD file
         suppl = SDMolSupplier(in_stream)
         out_l = []
+        # Loop through the mols 
         while not suppl.atEnd():
             mol = suppl.next()
             if mol is None:
                 continue
+            # Append to the list
             out_l.append(mol)
+        # Return the list
         return out_l
     elif file_flag == "smiles":
         me=  """Need to add header identifier etc"""
