@@ -6,37 +6,21 @@ from org.RDKit import *
 from threading import Thread
 import os
 
-def num_hba(mol, ret_val=False):
+def num_hba(mol):
 #     print "Calculating number of H-bond acceptors"
-     val = RDKFuncs.calcNumHBA(mol)
-     if ret_val:
-         return val
-     return mol
+     return RDKFuncs.calcNumHBA(mol)
 
-def num_hbd(mol, ret_val=False):
+def num_hbd(mol):
 #     print "Calculating number of H-bond donors"
-     val = RDKFuncs.calcNumHBD(mol)
-     if ret_val:
-         return val
-     return mol
+     return RDKFuncs.calcNumHBD(mol)
 
-
-
-def num_rings(mol, ret_val=False):
+def num_rings(mol):
  #    print "Calculating number of rings"
-     val = RDKFuncs.calcNumRings(mol)
-     if ret_val:
-         return val
-     return mol
-
+     return RDKFuncs.calcNumRings(mol)
 
 def mol_logp(mol, ret_val=False):
  #    print "Calculating mol log p"
-     val = RDKFuncs.calcMolLogP(mol)
-     if ret_val:
-         return val
-     return mol
-
+     return RDKFuncs.calcMolLogP(mol)
 
 # A dictionary to relate functioons t ostrings
 funct_dict = {"num_hba": num_hba,
@@ -47,8 +31,8 @@ funct_dict = {"num_hba": num_hba,
 
 def calc_props(request):
     for mol in request.body:
-        funct_dict[request.function](mol)
-
+        val = funct_dict[request.function](mol)
+        mol.setProp(request.function, str(val))
 # Request will comprise two parts
 ## 1) Stream of molecuels
 ## 2) String relating to property

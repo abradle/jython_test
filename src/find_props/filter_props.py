@@ -8,7 +8,8 @@ from find_props import funct_dict
 def filter_prop(request):
     new_ans = []
     for mol in request.body:
-        my_val = funct_dict[request.function](mol, ret_val=True)
+        my_val = funct_dict[request.function](mol)
+        mol.setProp(request.function, str(my_val))
 # Now di tge checjs
         if request.max_ans:
             if my_val > request.max_ans:
