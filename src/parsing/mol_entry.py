@@ -26,7 +26,7 @@ def check_stream_type(in_stream):
         # If this is none - this may not be a MOL file so we need to test the others
         if rdmol is None:
             # Check if it can read any of the others
-            if len([x for x in in my_mols if RWMol.MolFromMolBlock(x)]) == 0:
+            if len([x for x in my_mols if RWMol.MolFromMolBlock(x)]) == 0:
                 return None, None, None, None
             else:
                 # IF it reads as an - set the flags accordingly

@@ -25,7 +25,7 @@ def num_rings(mol):
     return RDKFuncs.calcNumRings(mol)
 
 def mol_logp(mol, ret_val=False):
-     """Function for calculating mol log p
+    """Function for calculating mol log p
     Takes an RDKit molecule
     Returns a int"""
     return RDKFuncs.calcMolLogP(mol)
